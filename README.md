@@ -19,4 +19,6 @@ Then open http://localhost:3000/users
 - `GET /messages`, `GET /messages/:messageId`, `POST /messages`, `PUT /messages/:messageId`, `DELETE /messages/:messageId`
 - `GET /session`
 
-Data is stored in memory (resets on restart). No database or auth yet.
+Data is stored in a SQLite database (`data.db` in the project root) using Node's built-in
+`node:sqlite` module. The `users` and `messages` tables are created and seeded automatically
+on first startup if they don't already exist, so data now persists across restarts. No auth yet.
