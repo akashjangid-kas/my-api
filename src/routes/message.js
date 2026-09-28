@@ -3,6 +3,8 @@ import { Router } from 'express';
 
 const router = Router();
 
+const isValidText = (text) => typeof text === 'string' && text.trim().length > 0;
+
 router.get('/', (req, res) => {
   const messages = req.context.models.prepare('SELECT * FROM messages').all();
   return res.send(messages);
@@ -16,10 +18,14 @@ router.get('/:messageId', (req, res) => {
 });
 
 router.post('/', (req, res) => {
+  if (!isValidText(req.body.text)) {
+    return res.status(400).send({ error: 'Message text is required' });
+  }
+
   const id = uuidv4();
   const message = {
     id,
-    text: req.body.text,
+    text: req.body.text.trim(),
     userId: req.context.me.id,
   };
 
@@ -47,9 +53,17 @@ router.put('/:messageId', (req, res) => {
     .prepare('SELECT * FROM messages WHERE id = ?')
     .get(req.params.messageId);
 
+  if (!message) {
+    return res.status(404).send({ error: 'Message not found' });
+  }
+
+  if (!isValidText(req.body.text)) {
+    return res.status(400).send({ error: 'Message text is required' });
+  }
+
   const updatedMessage = {
     ...message,
-    text: req.body.text,
+    text: req.body.text.trim()
   };
 
   req.context.models
