@@ -3,11 +3,15 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', (req, res) => {
-  return res.send(Object.values(req.context.models.users));
+  const users = req.context.models.prepare('SELECT * FROM users').all();
+  return res.send(users);
 });
 
 router.get('/:userId', (req, res) => {
-  return res.send(req.context.models.users[req.params.userId]);
+  const user = req.context.models
+    .prepare('SELECT * FROM users WHERE id = ?')
+    .get(req.params.userId);
+  return res.send(user);
 });
 
 export default router;
